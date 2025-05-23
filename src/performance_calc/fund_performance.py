@@ -1,3 +1,5 @@
+import pandas as pd
+
 from collections import defaultdict
 from stock_history.stock_ticker import get_average_price_per_quarter
 
@@ -30,12 +32,9 @@ def append_number_of_shares_to_holding(holdings):
 
         valid_holdings.append(holding)
 
-    pnl = calculate_quarterly_realized_pnl(valid_holdings)
-    print(pnl)
     return valid_holdings
 
 
-# New function: calculate_quarterly_realized_pnl
 def calculate_quarterly_realized_pnl(holdings):
     """
     Calculates realized PnL for share reductions per quarter and ticker.
@@ -43,6 +42,8 @@ def calculate_quarterly_realized_pnl(holdings):
     get_price_func: function(ticker, quarter_num, year) -> price
     Returns: list of dicts with keys: 'quarter', 'ticker', 'realized_pnl_mil', 'pnl_pct_of_portfolio'
     """
+    holdings = append_number_of_shares_to_holding(holdings)
+
     holdings_by_ticker = defaultdict(list)
     for h in holdings:
         holdings_by_ticker[h['ticker']].append(h)
@@ -75,7 +76,24 @@ def calculate_quarterly_realized_pnl(holdings):
                         'quarter': current['quarter'],
                         'ticker': ticker,
                         'realized_pnl_mil': pnl / 1_000_000,
-                        'pnl_pct_of_portfolio': pnl_pct * 100
+                        'pnl_pct_of_portfolio': pnl_pct * 100,
+                        'portfolio_value_mil': current['portfolio_value_mil']
                     })
             prev_holding = current
     return pnl_results
+
+def calculate_annual_pnl(pnl_results):
+    df = pd.DataFrame(pnl_results)
+    df['year'] = df['quarter'].str.extract(r'(\d{4})').astype(int)
+
+    # Total realized PnL per year
+    total_pnl = df.groupby('year')['realized_pnl_mil'].sum().reset_index(name='total_realized_pnl_mil')
+
+    # avg portfolio value used in return calculation
+    avg_portfolio_value = df.groupby('year')['portfolio_value_mil'].mean().reset_index(name='avg_portfolio_value_mil')
+
+    # Merge and calculate percentage return
+    merged = total_pnl.merge(avg_portfolio_value, on='year')
+    merged['annual_return_pct'] = (merged['total_realized_pnl_mil'] / merged['avg_portfolio_value_mil']) * 100
+
+    return merged
