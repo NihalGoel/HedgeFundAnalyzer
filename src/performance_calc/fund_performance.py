@@ -1,6 +1,8 @@
 import pandas as pd
 
 from collections import defaultdict
+
+from performance_calc.config import startYear
 from stock_history.stock_ticker import get_average_price_per_quarter
 
 def get_share_amount(holding, ticker_price):
@@ -18,7 +20,7 @@ def append_number_of_shares_to_holding(holdings):
         ticker = holding['ticker']
         quarter_str = holding['quarter']
         year = int(quarter_str.split()[0])
-        if year < 2018:
+        if year < startYear:
             continue
         quarter_num = int(quarter_str.split()[1][1])  # 'Q4' -> 4
 
