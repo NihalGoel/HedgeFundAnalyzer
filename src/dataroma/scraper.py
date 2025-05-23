@@ -1,7 +1,12 @@
 import requests
 from bs4 import BeautifulSoup
-from config import headers
 from cleaner import clean_historical_row
+
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                  "AppleWebKit/537.36 (KHTML, like Gecko) "
+                  "Chrome/113.0.0.0 Safari/537.36"
+}
 
 
 def get_fund_urls():
@@ -52,13 +57,5 @@ def get_historical_holdings_matrix(fund_url):
                 "weight_pct": float(pct)
             })
 
-    return all_holdings
-
-
-if __name__ == "__main__":
-    funds = get_fund_urls()
-    for fund in funds[:2]:  # Scrape first 2 funds for demo
-        # print(f"Scraping holdings for {fund['name']}...")
-        raw_holdings = get_historical_holdings_matrix(fund['url'])
-        cleaned_holdings = [clean_historical_row(h) for h in raw_holdings]
-        print(cleaned_holdings)
+    pretty_holdings = [clean_historical_row(h) for h in all_holdings]
+    return pretty_holdings
