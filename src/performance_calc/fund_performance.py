@@ -18,7 +18,7 @@ def append_number_of_shares_to_holding(holdings):
         ticker = holding['ticker']
         quarter_str = holding['quarter']
         year = int(quarter_str.split()[0])
-        if year < 2024:
+        if year < 2015:
             continue
         quarter_num = int(quarter_str.split()[1][1])  # 'Q4' -> 4
 
