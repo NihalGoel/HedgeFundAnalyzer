@@ -1,4 +1,4 @@
-from scraper import *
+from dataroma.scraper import *
 
 if __name__ == "__main__":
     funds = get_fund_urls()

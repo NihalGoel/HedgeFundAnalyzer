@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from cleaner import clean_historical_row
+from dataroma.cleaner import clean_historical_row
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
