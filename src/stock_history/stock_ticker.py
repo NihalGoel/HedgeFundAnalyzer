@@ -1,19 +1,5 @@
 import yfinance as yf
 
-def get_historical_stock_ticker(ticker, period="1y", interval="1d"):
-    """
-    Fetch historical stock data for a given ticker.
-    period: e.g., '1y', '6mo', '5d'
-    interval: e.g., '1d', '1wk', '1mo'
-    """
-    try:
-        stock = yf.Ticker(ticker)
-        hist = stock.history(period=period, interval=interval)
-        return hist.reset_index().to_dict(orient="records")
-    except Exception as e:
-        print(f"Failed to get data for {ticker}: {e}")
-        return []
-
 def get_average_price_per_quarter(ticker, quarter, year):
     quarter_dates = {
         1: ('01-01', '03-31'),
@@ -29,11 +15,11 @@ def get_average_price_per_quarter(ticker, quarter, year):
     start_date = f"{year}-{start_suffix}"
     end_date = f"{year}-{end_suffix}"
 
-    data = yf.download(ticker, start=start_date, end=end_date)
+    data = yf.download(ticker, start=start_date, end=end_date, progress=False)
     if data.empty:
         return None
 
-    return data["Close"].mean()
+    return data["Close"].mean().item()
 
 if __name__ == "__main__":
     average_price = get_average_price_per_quarter("AAPL", 2, 2023)
