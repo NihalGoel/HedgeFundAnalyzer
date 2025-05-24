@@ -8,9 +8,6 @@ from stock_history.stock_ticker import get_average_price_per_quarter
 def calculate_quarterly_pnl(holdings):
     """
     Calculates realized PnL for share reductions per quarter and ticker.
-    holdings: list of dicts with 'quarter', 'ticker', 'number_of_shares', 'portfolio_value_mil'
-    get_price_func: function(ticker, quarter_num, year) -> price
-    Returns: list of dicts with keys: 'quarter', 'ticker', 'realized_pnl_mil', 'pnl_pct_of_portfolio'
     """
     holdings_by_ticker = defaultdict(list)
     for h in holdings:

@@ -22,8 +22,6 @@ if __name__ == "__main__":
             continue
 
         annual_df = calculate_annual_pnl(holdings)
-        annual_df["cumulative_return_pct"] = annual_df["annual_return_pct"].cumsum()
-
         merged_df = pd.merge(annual_df, spy_df, on="year", how="left")
 
         all_funds_annual.append(fund['name'])
