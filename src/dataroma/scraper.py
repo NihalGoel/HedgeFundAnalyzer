@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 from dataroma.cleaner import clean_historical_row
+from runner.config import startYear
+from stock_history.stock_ticker import get_average_price_per_quarter
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -57,5 +59,37 @@ def get_historical_holdings_matrix(fund_url):
                 "weight_pct": float(pct)
             })
 
-    pretty_holdings = [clean_historical_row(h) for h in all_holdings]
-    return pretty_holdings
+    holdings = [clean_historical_row(h) for h in all_holdings]
+    holdings = append_number_of_shares_to_holding(holdings)
+    return holdings
+
+def append_number_of_shares_to_holding(holdings):
+    valid_holdings = []
+
+    for holding in holdings:
+        ticker = holding['ticker']
+        quarter_str = holding['quarter']
+        year = int(quarter_str.split()[0])
+        if year < startYear:
+            continue
+        quarter_num = int(quarter_str.split()[1][1])  # 'Q4' -> 4
+
+        ticker_price = get_average_price_per_quarter(ticker, quarter_num, year)
+        if ticker_price is None:
+            print(f"Skipping {ticker} for {quarter_str} — no price data.")
+            continue
+
+        number_of_shares = get_share_amount(holding, ticker_price)
+        holding['number_of_shares'] = number_of_shares
+
+        valid_holdings.append(holding)
+
+    return valid_holdings
+
+def get_share_amount(holding, ticker_price):
+    portfolio_value_mil = holding['portfolio_value_mil']
+    weight_pct = holding['weight_pct']
+
+    holding_value_mil = portfolio_value_mil * weight_pct / 100
+    number_of_shares = holding_value_mil * 1_000_000 / ticker_price
+    return int(round(number_of_shares))

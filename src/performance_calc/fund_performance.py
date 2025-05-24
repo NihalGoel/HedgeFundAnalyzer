@@ -2,39 +2,7 @@ import pandas as pd
 
 from collections import defaultdict
 
-from performance_calc.config import startYear
 from stock_history.stock_ticker import get_average_price_per_quarter
-
-def get_share_amount(holding, ticker_price):
-    portfolio_value_mil = holding['portfolio_value_mil']
-    weight_pct = holding['weight_pct']
-
-    holding_value_mil = portfolio_value_mil * weight_pct / 100
-    number_of_shares = holding_value_mil * 1_000_000 / ticker_price
-    return int(round(number_of_shares))
-
-def append_number_of_shares_to_holding(holdings):
-    valid_holdings = []
-
-    for holding in holdings:
-        ticker = holding['ticker']
-        quarter_str = holding['quarter']
-        year = int(quarter_str.split()[0])
-        if year < startYear:
-            continue
-        quarter_num = int(quarter_str.split()[1][1])  # 'Q4' -> 4
-
-        ticker_price = get_average_price_per_quarter(ticker, quarter_num, year)
-        if ticker_price is None:
-            print(f"Skipping {ticker} for {quarter_str} — no price data.")
-            continue
-
-        number_of_shares = get_share_amount(holding, ticker_price)
-        holding['number_of_shares'] = number_of_shares
-
-        valid_holdings.append(holding)
-
-    return valid_holdings
 
 
 def calculate_quarterly_pnl(holdings):
@@ -44,8 +12,6 @@ def calculate_quarterly_pnl(holdings):
     get_price_func: function(ticker, quarter_num, year) -> price
     Returns: list of dicts with keys: 'quarter', 'ticker', 'realized_pnl_mil', 'pnl_pct_of_portfolio'
     """
-    holdings = append_number_of_shares_to_holding(holdings)
-
     holdings_by_ticker = defaultdict(list)
     for h in holdings:
         holdings_by_ticker[h['ticker']].append(h)
@@ -87,7 +53,8 @@ def calculate_quarterly_pnl(holdings):
             prev_holding = current
     return pnl_results
 
-def calculate_annual_pnl(pnl_results):
+def calculate_annual_pnl(holdings):
+    pnl_results = calculate_quarterly_pnl(holdings)
     df = pd.DataFrame(pnl_results)
     df['year'] = df['quarter'].str.extract(r'(\d{4})').astype(int)
 

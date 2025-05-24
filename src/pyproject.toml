@@ -1,0 +1,10 @@
+[tool.ruff]
+line-length = 100
+target-version = "py311"  # or "py310", "py39", etc.
+lint.select = ["E", "F", "I", "B", "UP", "SIM", "N"]
+lint.ignore = []
+
+[tool.ruff.format]
+quote-style = "double"  # or "single" if preferred
+indent-style = "space"
+line-ending = "lf"
