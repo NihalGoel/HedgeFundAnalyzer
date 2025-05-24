@@ -1,6 +1,8 @@
 import yfinance as yf
+from functools import lru_cache
 
-def get_average_price_per_quarter(ticker, quarter, year):
+@lru_cache(maxsize=None)
+def get_average_price_per_quarter(ticker, quarter, year) -> float:
     quarter_dates = {
         1: ('01-01', '03-31'),
         2: ('04-01', '06-30'),
