@@ -64,5 +64,6 @@ def calculate_annual_pnl(holdings):
     # Merge and calculate percentage return
     merged = total_pnl.merge(avg_portfolio_value, on='year')
     merged['annual_return_pct'] = (merged['total_pnl_mil'] / merged['avg_portfolio_value_mil']) * 100
+    merged["annual_return_cumulative"] = merged['annual_return_pct'].cumsum()
 
     return merged

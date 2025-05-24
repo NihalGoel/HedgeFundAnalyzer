@@ -2,7 +2,7 @@ import yfinance as yf
 
 
 def get_spy_cum_returns(start_year, end_year=2025):
-    spy = yf.download("SPY", start=f"{start_year}-01-01", end=f"{end_year}-12-31", progress=False)
+    spy = yf.download("SPY", start=f"{start_year - 1}-01-01", end=f"{end_year}-12-31", progress=False)
     annual_close = spy["Close"].resample("YE").last()
     spy_return = annual_close.pct_change().dropna() * 100
     spy_annual = spy_return.reset_index()

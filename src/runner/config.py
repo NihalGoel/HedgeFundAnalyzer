@@ -1,7 +1,5 @@
-startYear=2023
+startYear=2016
 endYear=2025
 
-firstFundIndex=3
-lastFundIndex=4
-
-maxHoldingCount=350
+firstFundIndex=1
+lastFundIndex=50
