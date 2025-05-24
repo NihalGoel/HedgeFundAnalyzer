@@ -10,10 +10,10 @@ pd.set_option("display.width", 0)  # Auto-wrap wide output
 if __name__ == "__main__":
     funds = get_fund_urls()
     all_funds_annual = []
-    for fund in funds[1:30]:  # Scrapes fund indices 4 through 9 (Python slices are exclusive on the right)
+    for fund in funds[1:50]:  # Scrapes fund indices 4 through 9 (Python slices are exclusive on the right)
         print(f"Scraping holdings for {fund['name']}...")
         holdings = get_historical_holdings_matrix(fund['url'])
-        if len(set(h['ticker'] for h in holdings)) > 20:
+        if len(set(h['ticker'] for h in holdings)) > 350:
             print(f"Skipping {fund['name']} — too many holdings ({len(holdings)})")
             continue
         pnl_results = calculate_quarterly_pnl(holdings)
