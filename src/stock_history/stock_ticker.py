@@ -1,6 +1,7 @@
 import yfinance as yf
 from functools import lru_cache
 from typing import Optional
+from datetime import datetime, timedelta
 
 def is_price_declining(ticker, quarter, year=2025) -> Optional[float]:
     if quarter == 1:
@@ -43,6 +44,22 @@ def get_average_price_per_quarter(ticker, quarter, year=2025) -> float:
 
     return data["Close"].mean().item()
 
+def get_decline_from_104wk_high(ticker: str) -> Optional[float]:
+    today = datetime.today()
+    start_date = today - timedelta(weeks=104)
+    data = yf.download(ticker, start=start_date.strftime('%Y-%m-%d'), end=today.strftime('%Y-%m-%d'), progress=False)
+
+    if data.empty:
+        return None
+
+    high_104wk = data["High"].max().item()
+    current_price = data["Close"].iloc[-1].item()
+
+    if high_104wk == 0:
+        return None
+
+    decline_pct = ((high_104wk - current_price) / high_104wk) * 100
+    return round(decline_pct, 2)
 
 
 if __name__ == "__main__":

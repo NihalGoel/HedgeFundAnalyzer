@@ -4,7 +4,7 @@ from dataroma.historical_holdings import get_historical_holdings_matrix
 from performance_calc.fund_performance import *
 from runner.config import startYear, firstFundIndex, lastFundIndex
 from stock_history.spy_data import get_spy_cum_returns
-from stock_history.stock_ticker import is_price_declining
+from stock_history.stock_ticker import is_price_declining, get_decline_from_104wk_high
 import pandas as pd
 
 pd.set_option("display.max_columns", None)  # Show all columns
@@ -47,17 +47,21 @@ def find_buy_opportunities():
     for fund_buys in buy_activities:
         for stock in fund_buys:
             decline = is_price_declining(stock['ticker'].split()[0], quarter=2)
+            decline_104wk = get_decline_from_104wk_high(stock['ticker'].split()[0])
             if decline is not None:
                 stock['decline_pct'] = decline
+                stock['decline_104wk'] = decline_104wk
                 filtered_buys.append(stock)
 
+    filtered_buys.sort(key=lambda x: float(x['decline_104wk']), reverse=True)
+
     print("\n" + "=" * 180)
-    print(f"{'Ticker':<10} {'Company':<45} {'% Portfolio':<14} {'Activity':<20} {'% Decline':<12} {'Fund':<40}")
+    print(f"{'Ticker':<10} {'Company':<45} {'% Portfolio':<14} {'Activity':<20} {'% Decline':<12} {'% 2yr Decline':<15} {'Fund':<40}")
     print("-" * 180)
 
     for stock in filtered_buys:
         ticker = stock['ticker'].split()[0]
-        print(f"{ticker:<10} {stock['company']:<45} {stock['percentage']:<14} {stock['activity']:<20} {stock['decline_pct']:<12.2f} {stock['fund']:<40}")
+        print(f"{ticker:<10} {stock['company']:<45} {stock['percentage']:<14} {stock['activity']:<20} {stock['decline_pct']:<12.2f} {stock['decline_104wk']:<15.2f} {stock['fund']:<40}")
 
 
 if __name__ == "__main__":
