@@ -1,7 +1,8 @@
 import yfinance as yf
 from functools import lru_cache
+from typing import Optional
 
-def is_price_declining(ticker, quarter, year=2025) -> bool:
+def is_price_declining(ticker, quarter, year=2025) -> Optional[float]:
     if quarter == 1:
         prev_quarter = 4
         prev_year = year - 1
@@ -13,9 +14,12 @@ def is_price_declining(ticker, quarter, year=2025) -> bool:
     prev_avg = get_average_price_per_quarter(ticker, prev_quarter, prev_year)
 
     if current_avg is None or prev_avg is None:
-        return False
+        return None
 
-    return current_avg < prev_avg
+    if current_avg < prev_avg:
+        decline_pct = ((prev_avg - current_avg) / prev_avg) * 100
+        return round(decline_pct, 2)
+    return None
 
 @lru_cache(maxsize=None)
 def get_average_price_per_quarter(ticker, quarter, year=2025) -> float:

@@ -45,18 +45,19 @@ def find_buy_opportunities():
 
     filtered_buys = []
     for fund_buys in buy_activities:
-        filtered_buys.extend([
-            stock for stock in fund_buys
-            if is_price_declining(stock['ticker'].split()[0], quarter=2)
-        ])
+        for stock in fund_buys:
+            decline = is_price_declining(stock['ticker'].split()[0], quarter=2)
+            if decline is not None:
+                stock['decline_pct'] = decline
+                filtered_buys.append(stock)
 
     print("\n" + "=" * 180)
-    print(f"{'Ticker':<10} {'Company':<45} {'% Portfolio':<14} {'Activity':<20} {'Fund':<40}")
+    print(f"{'Ticker':<10} {'Company':<45} {'% Portfolio':<14} {'Activity':<20} {'% Decline':<12} {'Fund':<40}")
     print("-" * 180)
 
     for stock in filtered_buys:
         ticker = stock['ticker'].split()[0]
-        print(f"{ticker:<10} {stock['company']:<45} {stock['percentage']:<14} {stock['activity']:<20} {stock['fund']:<40}")
+        print(f"{ticker:<10} {stock['company']:<45} {stock['percentage']:<14} {stock['activity']:<20} {stock['decline_pct']:<12.2f} {stock['fund']:<40}")
 
 
 if __name__ == "__main__":
