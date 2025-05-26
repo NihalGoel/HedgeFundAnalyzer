@@ -5,7 +5,9 @@ from dataroma.config import headers
 from runner.config import minAddedAmount, minPercentageOfPortfolio
 
 
-def get_latest_quarter_buys(fund_url):
+def get_latest_quarter_buys(fund):
+    fund_url = fund["url"]
+    fund_name = fund["name"]
 
     resp = requests.get(fund_url, headers=headers)
     soup = BeautifulSoup(resp.content, "lxml")
@@ -32,6 +34,7 @@ def get_latest_quarter_buys(fund_url):
             # "price_change_pct": cols[9].text.strip(),
             # "52_week_low": cols[10].text.strip(),
             # "52_week_high": cols[11].text.strip()
+            "fund": fund_name
         }
 
         latest_quarter_buys.append(stock)

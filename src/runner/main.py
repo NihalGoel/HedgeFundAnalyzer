@@ -40,16 +40,16 @@ def find_buy_opportunities():
     buy_activities = []
 
     for fund in funds[firstFundIndex:lastFundIndex]:  # Scrapes fund indices x through y (Python slices are exclusive on the right)
-        buy_activities.append(get_latest_quarter_buys(fund['url']))
+        buy_activities.append(get_latest_quarter_buys(fund))
 
-    print("\n" + "=" * 80)
-    print(f"{'Ticker':<10} {'Company':<35} {'% Portfolio':<12} {'Activity':<20}")
-    print("-" * 80)
+    print("\n" + "=" * 180)
+    print(f"{'Ticker':<10} {'Company':<35} {'% Portfolio':<12} {'Activity':<20} {'Fund':<30}")
+    print("-" * 180)
 
     for fund_buys in buy_activities:
         for stock in fund_buys:
             ticker = stock['ticker'].split()[0]  # Extract ticker only
-            print(f"{ticker:<10} {stock['company']:<35} {stock['percentage']:<12} {stock['activity']:<20}")
+            print(f"{ticker:<10} {stock['company']:<35} {stock['percentage']:<12} {stock['activity']:<20} {stock['fund']:<30}")
 
 
 if __name__ == "__main__":
