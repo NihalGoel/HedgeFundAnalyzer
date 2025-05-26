@@ -1,8 +1,24 @@
 import yfinance as yf
 from functools import lru_cache
 
+def is_price_declining(ticker, quarter, year=2025) -> bool:
+    if quarter == 1:
+        prev_quarter = 4
+        prev_year = year - 1
+    else:
+        prev_quarter = quarter - 1
+        prev_year = year
+
+    current_avg = get_average_price_per_quarter(ticker, quarter, year)
+    prev_avg = get_average_price_per_quarter(ticker, prev_quarter, prev_year)
+
+    if current_avg is None or prev_avg is None:
+        return False
+
+    return current_avg < prev_avg
+
 @lru_cache(maxsize=None)
-def get_average_price_per_quarter(ticker, quarter, year) -> float:
+def get_average_price_per_quarter(ticker, quarter, year=2025) -> float:
     quarter_dates = {
         1: ('01-01', '03-31'),
         2: ('04-01', '06-30'),
@@ -22,6 +38,8 @@ def get_average_price_per_quarter(ticker, quarter, year) -> float:
         return None
 
     return data["Close"].mean().item()
+
+
 
 if __name__ == "__main__":
     average_price = get_average_price_per_quarter("AAPL", 2, 2023)

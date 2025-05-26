@@ -4,6 +4,7 @@ from dataroma.historical_holdings import get_historical_holdings_matrix
 from performance_calc.fund_performance import *
 from runner.config import startYear, firstFundIndex, lastFundIndex
 from stock_history.spy_data import get_spy_cum_returns
+from stock_history.stock_ticker import is_price_declining
 import pandas as pd
 
 pd.set_option("display.max_columns", None)  # Show all columns
@@ -42,14 +43,20 @@ def find_buy_opportunities():
     for fund in funds[firstFundIndex:lastFundIndex]:  # Scrapes fund indices x through y (Python slices are exclusive on the right)
         buy_activities.append(get_latest_quarter_buys(fund))
 
+    filtered_buys = []
+    for fund_buys in buy_activities:
+        filtered_buys.extend([
+            stock for stock in fund_buys
+            if is_price_declining(stock['ticker'].split()[0], quarter=2)
+        ])
+
     print("\n" + "=" * 180)
-    print(f"{'Ticker':<10} {'Company':<35} {'% Portfolio':<12} {'Activity':<20} {'Fund':<30}")
+    print(f"{'Ticker':<10} {'Company':<45} {'% Portfolio':<14} {'Activity':<20} {'Fund':<40}")
     print("-" * 180)
 
-    for fund_buys in buy_activities:
-        for stock in fund_buys:
-            ticker = stock['ticker'].split()[0]  # Extract ticker only
-            print(f"{ticker:<10} {stock['company']:<35} {stock['percentage']:<12} {stock['activity']:<20} {stock['fund']:<30}")
+    for stock in filtered_buys:
+        ticker = stock['ticker'].split()[0]
+        print(f"{ticker:<10} {stock['company']:<45} {stock['percentage']:<14} {stock['activity']:<20} {stock['fund']:<40}")
 
 
 if __name__ == "__main__":
