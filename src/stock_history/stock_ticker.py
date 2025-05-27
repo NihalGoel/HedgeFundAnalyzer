@@ -60,8 +60,3 @@ def get_decline_from_104wk_high(ticker: str) -> Optional[float]:
 
     decline_pct = ((high_104wk - current_price) / high_104wk) * 100
     return round(decline_pct, 2)
-
-
-if __name__ == "__main__":
-    average_price = get_average_price_per_quarter("AAPL", 2, 2023)
-    print(f"Average price for Q2 2023: {average_price}")

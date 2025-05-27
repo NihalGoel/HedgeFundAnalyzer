@@ -36,13 +36,7 @@ def calculate_fund_performance():
         print(f"{fund_name}")
         print(fund_performance)
 
-def find_buy_opportunities():
-    funds = get_fund_urls()
-    buy_activities = []
-
-    for fund in funds[firstFundIndex:lastFundIndex]:  # Scrapes fund indices x through y (Python slices are exclusive on the right)
-        buy_activities.append(get_latest_quarter_buys(fund))
-
+def filter_buys_with_decline_info(buy_activities):
     filtered_buys = []
     for fund_buys in buy_activities:
         for stock in fund_buys:
@@ -52,16 +46,33 @@ def find_buy_opportunities():
                 stock['decline_pct'] = decline
                 stock['decline_104wk'] = decline_104wk
                 filtered_buys.append(stock)
+    return filtered_buys
 
-    filtered_buys.sort(key=lambda x: float(x['decline_104wk']), reverse=True)
+def find_buy_opportunities():
+    funds = get_fund_urls()
+    buy_activities = []
 
-    print("\n" + "=" * 180)
-    print(f"{'Ticker':<10} {'Company':<45} {'% Portfolio':<14} {'Activity':<20} {'% Decline':<12} {'% 2yr Decline':<15} {'Fund':<40}")
-    print("-" * 180)
+    for fund in funds[firstFundIndex:lastFundIndex]:  # Scrapes fund indices x through y (Python slices are exclusive on the right)
+        buy_activities.append(get_latest_quarter_buys(fund))
+
+    filtered_buys = filter_buys_with_decline_info(buy_activities)
+
+    filtered_buys.sort(key=lambda x: float(x['value']), reverse=True)
+
+    print("\n" + "=" * 150)
+    print(f"{'Ticker':<10} {'Company':<30} {'% Port':<10} {'Activity':<15} {'% Decl':<9} {'% 2yr':<9} {'Position':<15} {'Fund':<30}")
+    print("-" * 150)
 
     for stock in filtered_buys:
         ticker = stock['ticker'].split()[0]
-        print(f"{ticker:<10} {stock['company']:<45} {stock['percentage']:<14} {stock['activity']:<20} {stock['decline_pct']:<12.2f} {stock['decline_104wk']:<15.2f} {stock['fund']:<40}")
+        print(f"{ticker:<10} "
+              f"{stock['company']:<30}"
+              f" {stock['percentage']:<10}"
+              f" {stock['activity']:<15}"
+              f" {stock['decline_pct']:<9.2f}"
+              f" {stock['decline_104wk']:<9.2f}"
+              f" {stock['value_mil']:<15}"
+              f" {stock['fund']:<30}")
 
 
 if __name__ == "__main__":

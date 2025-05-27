@@ -24,17 +24,18 @@ def get_latest_quarter_buys(fund):
 
         stock = {
             "ticker": cols[1].find("a").text.strip(),
-            "company": cols[1].find("span").text.strip() if cols[1].find("span") else "",
+            "company": cols[1].find("span").text.strip().lstrip("- ")[:30] if cols[1].find("span") else "",
             "percentage": cols[2].text.strip(),
             "activity": cols[3].text.strip(),
             # "shares": cols[4].text.strip(),
             # "reported_price": cols[5].text.strip(),
-            "value": cols[6].text.strip(),
+            "value": float(cols[6].text.strip().replace('$', '').replace(',', '')),
+            "value_mil": f"{float(cols[6].text.strip().replace('$', '').replace(',', '')) / 1_000_000:.2f} m" if "$" in cols[6].text else "0.00m",
             # "current_price": cols[8].text.strip(),
             # "price_change_pct": cols[9].text.strip(),
             # "52_week_low": cols[10].text.strip(),
             # "52_week_high": cols[11].text.strip()
-            "fund": fund_name
+            "fund": fund_name[:40]
         }
 
         latest_quarter_buys.append(stock)
