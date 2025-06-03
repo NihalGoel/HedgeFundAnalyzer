@@ -6,6 +6,7 @@ from runner.config import startYear, firstFundIndex, lastFundIndex
 from stock_history.spy_data import get_spy_cum_returns
 from stock_history.stock_ticker import is_price_declining, get_decline_from_104wk_high
 import pandas as pd
+import time
 
 pd.set_option("display.max_columns", None)  # Show all columns
 pd.set_option("display.width", 0)  # Auto-wrap wide output
@@ -76,5 +77,9 @@ def find_buy_opportunities():
 
 
 if __name__ == "__main__":
+    start = time.perf_counter()
     # calculate_fund_performance()
     find_buy_opportunities()
+    end = time.perf_counter()
+    print(f"Execution time: {end - start:.4f} seconds")
+

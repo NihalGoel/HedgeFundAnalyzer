@@ -1,8 +1,8 @@
-startYear=2013
+startYear=2018
 endYear=2025
 
 firstFundIndex=0
-lastFundIndex=75
+lastFundIndex=5
 
-minPercentageOfPortfolio=7
-minAddedAmount=50
+minPercentageOfPortfolio=4
+minAddedAmount=30

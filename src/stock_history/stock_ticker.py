@@ -1,7 +1,9 @@
 import yfinance as yf
-from functools import lru_cache
+from joblib import Memory
 from typing import Optional
 from datetime import datetime, timedelta
+
+memory = Memory(".cache", verbose=0)
 
 def is_price_declining(ticker, quarter, year=2025) -> Optional[float]:
     if quarter == 1:
@@ -22,7 +24,7 @@ def is_price_declining(ticker, quarter, year=2025) -> Optional[float]:
         return round(decline_pct, 2)
     return None
 
-@lru_cache(maxsize=None)
+@memory.cache
 def get_average_price_per_quarter(ticker, quarter, year=2025) -> float:
     quarter_dates = {
         1: ('01-01', '03-31'),
