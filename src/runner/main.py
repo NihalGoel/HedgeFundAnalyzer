@@ -2,7 +2,7 @@ from dataroma.latest_quarter_buys import get_latest_quarter_buys
 from dataroma.scraper import get_fund_urls
 from dataroma.historical_holdings import get_historical_holdings_matrix
 from performance_calc.fund_performance import *
-from runner.config import startYear, firstFundIndex, lastFundIndex
+from runner.config import startYear, firstFundIndex, lastFundIndex, top_30_funds
 from stock_history.spy_data import get_spy_cum_returns
 from stock_history.stock_ticker import is_price_declining, get_decline_from_104wk_high
 import pandas as pd
@@ -17,8 +17,7 @@ def calculate_fund_performance():
     all_funds_annual = []
     spy_df = get_spy_cum_returns(startYear)
 
-    for fund in funds[
-                firstFundIndex:lastFundIndex]:  # Scrapes fund indices x through y (Python slices are exclusive on the right)
+    for fund in funds[firstFundIndex:lastFundIndex]:  # Scrapes fund indices x through y (Python slices are exclusive on the right)
         print(f"Scraping holdings for {fund['name']}...")
         holdings = get_historical_holdings_matrix(fund['url'])
 
@@ -31,6 +30,16 @@ def calculate_fund_performance():
         key=lambda x: x[1]["annual_return_cumulative"].iloc[-1] if not x[1].empty else float('-inf'),
         reverse=True
     )
+
+    top_30_funds_short = [fund_name[:10] for fund_name, _ in all_funds_annual[:30]]
+    print("\nTop 30 Fund Name Prefixes (first 10 chars, copy-paste ready):")
+    print(top_30_funds_short)
+
+    for idx, (fund_name, fund_performance) in enumerate(all_funds_annual):
+        final_cum_return = fund_performance["annual_return_cumulative"].iloc[-1] if not fund_performance.empty else None
+        rank = idx + 1
+        print(
+            f"Rank #{rank}: {fund_name} | Final Cumulative Return: {final_cum_return:.2f}" if final_cum_return is not None else f"Rank #{rank}: {fund_name} | No data available")
 
     for fund_name, fund_performance in all_funds_annual:
         print("\n" + "=" * 80)
@@ -53,7 +62,9 @@ def find_buy_opportunities():
     funds = get_fund_urls()
     buy_activities = []
 
-    for fund in funds[firstFundIndex:lastFundIndex]:  # Scrapes fund indices x through y (Python slices are exclusive on the right)
+    for fund in funds[firstFundIndex:lastFundIndex]:
+        if not any(fund['name'].startswith(prefix) for prefix in top_30_funds):
+            continue
         buy_activities.append(get_latest_quarter_buys(fund))
 
     filtered_buys = filter_buys_with_decline_info(buy_activities)
@@ -82,4 +93,3 @@ if __name__ == "__main__":
     find_buy_opportunities()
     end = time.perf_counter()
     print(f"Execution time: {end - start:.4f} seconds")
-
